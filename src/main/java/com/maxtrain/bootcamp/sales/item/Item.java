@@ -12,7 +12,7 @@ public class Item {
 	@Column(length = 30, nullable = false)
 	private String name;
 	@Column(columnDefinition="decimal(7,2) NOT NULL DEFAULT 0")
-	private double Price;
+	private double price;
 	
 	// Getters and Setters
 	
@@ -29,10 +29,10 @@ public class Item {
 		this.name = name;
 	}
 	public double getPrice() {
-		return Price;
+		return price;
 	}
 	public void setPrice(double price) {
-		Price = price;
+		this.price = price;
 	}
 
 }
