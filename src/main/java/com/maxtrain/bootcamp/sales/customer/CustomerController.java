@@ -40,4 +40,33 @@ public class CustomerController { // start of class
 		}
 		return new ResponseEntity<Customer>(customer.get(), HttpStatus.OK);
 	}
+
+	@PostMapping
+	public ResponseEntity<Customer> postCustomer(@RequestBody Customer customer){
+		Customer newCustomer = custRepo.save(customer);
+		return new ResponseEntity<Customer>(newCustomer, HttpStatus.CREATED);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@PutMapping("{id}")
+	public ResponseEntity putCustomer(@PathVariable int id, @RequestBody Customer customer) {
+		if(customer.getId() != id) {
+			return new ResponseEntity(HttpStatus.BAD_REQUEST);
+		}
+		custRepo.save(customer);
+		return new ResponseEntity(HttpStatus.NO_CONTENT);
+	}
+
+	@SuppressWarnings("rawtypes")
+	@DeleteMapping("{id}")
+	public ResponseEntity deleteCustomer(@PathVariable int id) {
+		Optional<Customer> customer = custRepo.findById(id);
+		if(customer.isEmpty()) {
+			return new ResponseEntity(HttpStatus.NOT_FOUND);
+		}
+		custRepo.delete(customer.get());
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+
 } //end of class
