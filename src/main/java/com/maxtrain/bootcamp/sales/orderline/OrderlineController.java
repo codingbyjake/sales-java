@@ -12,7 +12,11 @@ import com.maxtrain.bootcamp.sales.item.ItemRepository;
 import com.maxtrain.bootcamp.sales.order.Order;
 import com.maxtrain.bootcamp.sales.order.OrderRepository;
 
-import jakarta.persistence.*;
+import com.maxtrain.bootcamp.sales.customer.Customer;
+import com.maxtrain.bootcamp.sales.customer.CustomerRepository;
+
+
+//import jakarta.persistence.*;
 
 @CrossOrigin
 @RestController
@@ -25,6 +29,29 @@ public class OrderlineController { // start of class
 	private OrderRepository ordRepo;	
 	@Autowired
 	private ItemRepository itemRepo;
+	@Autowired
+	private CustomerRepository custRepo;
+	
+	// ****************** Handmade Recalculate Customer Sales Method
+	// ****************** 
+	private boolean recalculateCustomerSales(int customerId) {
+		Optional<Customer> aCustomer = custRepo.findById(customerId);
+		if(aCustomer.isEmpty()) {
+			return false;
+		}
+		Customer customer = aCustomer.get();
+		
+		Iterable<Order> orders = ordRepo.findByCustomerId(customerId);
+		double newTotal = 0;
+		for(Order o : orders) {
+			newTotal += o.getTotal();
+		
+		}
+		customer.setSales(customer.getSales() + newTotal);
+		custRepo.save(customer);
+		
+		return true;
+	}
 	
 	
 	private boolean recalculateOrderTotal (int orderId) {
@@ -83,6 +110,7 @@ public class OrderlineController { // start of class
 		Optional<Order> order = ordRepo.findById(orderline.getOrder().getId());          // added to make recalculate call
 		if(!order.isEmpty()) {															 // added to make recalculate call
 			boolean success = recalculateOrderTotal(order.get().getId());                 // added to make recalculate call
+			recalculateCustomerSales(order.get().getCustomer().getId());         /////   ****************Call to Recalc Cust Sales****************
 			if(!success) {                                                                  // added to make recalculate call
 				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);             // added to make recalculate call
 			}                                                                             // added to make recalculate call
@@ -102,6 +130,7 @@ public class OrderlineController { // start of class
 		Optional<Order> order = ordRepo.findById(orderline.getOrder().getId());
 		if(!order.isEmpty()) {
 			boolean success = recalculateOrderTotal(order.get().getId());
+			recalculateCustomerSales(order.get().getCustomer().getId());         /////   ****************Call to Recalc Cust Sales****************
 			if(!success) {
 				return new ResponseEntity(HttpStatus.NO_CONTENT);
 			}
@@ -124,6 +153,7 @@ public class OrderlineController { // start of class
 		Optional<Order> order = ordRepo.findById(orderline.get().getOrder().getId());
 		if(!order.isEmpty()) {
 			boolean success = recalculateOrderTotal(order.get().getId());
+			recalculateCustomerSales(order.get().getCustomer().getId());         /////   ****************Call to Recalc Cust Sales****************
 			if(!success) {
 				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
